@@ -1,0 +1,44 @@
+[
+  {
+    "name": "precioHoy",
+    "description": "Obtiene el precio PVPC de electricidad para hoy",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "region": { "type": "string", "description": "Código de la región (opcional)" }
+      },
+      "required": []
+    },
+    "response_schema": {
+      "type": "object",
+      "properties": {
+        "fecha": { "type": "string" },
+        "precio": { "type": "number" },
+        "unidad": { "type": "string" }
+      }
+    },
+    "endpoint": "https://precio-de-la-electricidad.fly.dev/hoy",
+    "method": "GET"
+  },
+  {
+    "name": "precioManana",
+    "description": "Obtiene el precio PVPC de electricidad para mañana",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "region": { "type": "string", "description": "Código de la región (opcional)" }
+      },
+      "required": []
+    },
+    "response_schema": {
+      "type": "object",
+      "properties": {
+        "fecha": { "type": "string" },
+        "precio": { "type": "number" },
+        "unidad": { "type": "string" }
+      }
+    },
+    "endpoint": "https://precio-de-la-electricidad.fly.dev/manana",
+    "method": "GET"
+  }
+]
