@@ -1,0 +1,12 @@
+app = "tu-nombre-de-app"   # Fly.io lo rellena automáticamente al hacer fly launch
+primary_region = "mad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
