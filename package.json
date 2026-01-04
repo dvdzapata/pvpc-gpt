@@ -1,0 +1,27 @@
+{
+  "name": "pvpc-gpt",
+  "version": "1.0.0",
+  "description": "PVPC en tiempo real - GPT app with ESIOS indicator 1001",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx src/server.ts",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": ["pvpc", "esios", "electricity", "gpt", "openai"],
+  "author": "David Fimia Zapata",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.5",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

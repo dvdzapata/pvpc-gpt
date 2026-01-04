@@ -1,0 +1,142 @@
+openapi: 3.0.0
+info:
+  title: PVPC API
+  description: API para obtener datos del precio de la electricidad en España (PVPC) del indicador 1001 de ESIOS
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Servidor local
+paths:
+  /:
+    get:
+      operationId: getApiInfo
+      summary: Obtiene información general de la API
+      responses:
+        '200':
+          description: Información de la API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  version:
+                    type: string
+                  endpoints:
+                    type: object
+  /pvpc/current:
+    get:
+      operationId: getCurrentPrice
+      summary: Obtiene el precio actual del PVPC
+      description: Devuelve el precio del PVPC para la hora actual
+      responses:
+        '200':
+          description: Precio actual del PVPC
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      indicator:
+                        type: string
+                      timestamp:
+                        type: string
+                        format: date-time
+                      value:
+                        type: number
+                      units:
+                        type: string
+        '404':
+          description: No se encontró el precio para la hora actual
+        '500':
+          description: Error del servidor
+  /pvpc/today:
+    get:
+      operationId: getTodayPrices
+      summary: Obtiene todos los precios del día
+      description: Devuelve todos los precios del PVPC para el día actual
+      responses:
+        '200':
+          description: Lista de precios del día
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        indicator:
+                          type: string
+                        timestamp:
+                          type: string
+                          format: date-time
+                        value:
+                          type: number
+                        units:
+                          type: string
+        '500':
+          description: Error del servidor
+  /pvpc/summary:
+    get:
+      operationId: getDailySummary
+      summary: Obtiene el resumen del día
+      description: Devuelve un resumen con los precios mínimo, máximo, promedio y actual del día
+      responses:
+        '200':
+          description: Resumen del día
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      min:
+                        type: number
+                      max:
+                        type: number
+                      average:
+                        type: number
+                      current:
+                        type: number
+                        nullable: true
+                      unit:
+                        type: string
+        '500':
+          description: Error del servidor
+  /health:
+    get:
+      operationId: getHealth
+      summary: Verifica el estado del servidor
+      description: Endpoint de salud del servidor
+      responses:
+        '200':
+          description: Estado del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
