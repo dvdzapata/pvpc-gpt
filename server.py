@@ -125,7 +125,8 @@ async def root():
         "endpoints": {
             "/hoy": "Precios PVPC de hoy",
             "/manana": "Precios PVPC de mañana (disponible desde las 20:00)",
-            "/health": "Health check"
+            "/health": "Health check",
+            "/.well-known/openai-apps-challenge": "Verificación OpenAI"
         }
     }
 
@@ -178,12 +179,17 @@ async def pvpc_manana():
 @app.get("/.well-known/openai-apps-challenge")
 async def openai_challenge():
     """Sirve el archivo de verificación de OpenAI Apps"""
-    file_path = ".well-known/openai-apps-challenge"
+    # Path absoluto desde el directorio del script
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, ".well-known", "openai-apps-challenge")
+    
+    logger.info(f"🔍 Buscando archivo de verificación en: {file_path}")
+    
     if os.path.exists(file_path):
-        logger.info("✅ Sirviendo archivo de verificación OpenAI")
+        logger.info("✅ Archivo de verificación encontrado")
         return FileResponse(file_path, media_type="text/plain")
     else:
-        logger.error("❌ Archivo de verificación no encontrado")
+        logger.error(f"❌ Archivo de verificación NO encontrado: {file_path}")
         raise HTTPException(status_code=404, detail="Verification file not found")
 
 # -------------------------
