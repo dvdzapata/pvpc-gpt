@@ -2,6 +2,8 @@ import json
 import requests
 from datetime import datetime, timedelta, timezone
 from mcp.server import Server
+from fastapi import FastAPI
+import uvicorn
 
 ESIOS_TOKEN = "d6467eb25b2fa5e8226442a58b308d4cf3c54b23600ed70bcde4873e88066da6"
 
@@ -12,6 +14,7 @@ HEADERS = {
 }
 
 server = Server("pvpc")
+app = FastAPI()
 
 # -------------------------
 # SEMÁFORO PVPC (€/kWh)
@@ -67,7 +70,7 @@ def procesar(lista):
     return salida
 
 # -------------------------
-# TOOL: HOY
+# TOOLS
 # -------------------------
 @server.tool()
 def pvpc_hoy() -> str:
@@ -75,9 +78,6 @@ def pvpc_hoy() -> str:
     valores = pedir_1001(ahora)
     return json.dumps(procesar(valores), ensure_ascii=False)
 
-# -------------------------
-# TOOL: MAÑANA
-# -------------------------
 @server.tool()
 def pvpc_manhana() -> str:
     hora_local = datetime.now()
@@ -89,7 +89,12 @@ def pvpc_manhana() -> str:
     return json.dumps(procesar(valores), ensure_ascii=False)
 
 # -------------------------
+# MCP ENDPOINT
+# -------------------------
+app.post("/mcp")(server.fastapi_handler())
+
+# -------------------------
 # MAIN
 # -------------------------
 if __name__ == "__main__":
-    server.run()
+    uvicorn.run(app, host="0.0.0.0", port=8080)
