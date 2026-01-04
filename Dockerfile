@@ -1,16 +1,12 @@
 FROM python:3.11-slim
 
-# Evita problemas de buffering
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Copia el servidor MCP
 COPY server.py /app/server.py
 
-# Si tienes dependencias, descomenta:
-# COPY requirements.txt /app/
-# RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install fastapi uvicorn requests mcp-server
 
 EXPOSE 8080
 
