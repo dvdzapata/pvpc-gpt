@@ -1,4 +1,4 @@
-app = "tu-nombre-de-app"   # Fly.io lo rellena automáticamente al hacer fly launch
+app = "tu-nombre-de-app"
 primary_region = "mad"
 
 [build]
