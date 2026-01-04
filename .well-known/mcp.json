@@ -1,0 +1,6 @@
+{
+  "name": "Precio Luz PVPC MCP",
+  "version": "1.0.0",
+  "description": "MCP server que expone los precios de electricidad PVPC para hoy y mañana",
+  "tools": "/tools"
+}
