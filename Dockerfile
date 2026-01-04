@@ -1,13 +1,29 @@
 FROM python:3.11-slim
 
-ENV PYTHONUNBUFFERED=1
+# Variables de entorno
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
 
-COPY server.py /app/server.py
+# Copiar y instalar dependencias primero (para aprovechar caché de Docker)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install fastapi uvicorn requests mcp-server
+# Copiar código de la aplicación
+COPY server.py .
 
+# Puerto de la aplicación
 EXPOSE 8080
+
+# Health check para Fly.io
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD python -c "import sys; sys.exit(0)"
+
+# Usuario no-root por seguridad
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
 
 CMD ["python", "server.py"]
