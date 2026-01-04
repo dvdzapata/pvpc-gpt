@@ -4,7 +4,9 @@ import os
 import sys
 import requests
 from datetime import datetime, timedelta, timezone
-from mcp.server import Server
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
+import uvicorn
 
 # -------------------------
 # CONFIGURACIÓN Y LOGGING
@@ -29,8 +31,14 @@ HEADERS = {
     "x-api-key": ESIOS_TOKEN
 }
 
-server = Server("pvpc")
-logger.info("🚀 Servidor PVPC MCP inicializado")
+# Crear aplicación FastAPI
+app = FastAPI(
+    title="PVPC API",
+    description="API para consultar precios PVPC de electricidad en España",
+    version="1.0.0"
+)
+
+logger.info("🚀 Servidor PVPC API inicializado")
 
 # -------------------------
 # SEMÁFORO PVPC (€/kWh)
@@ -105,50 +113,71 @@ def procesar(lista):
     return salida
 
 # -------------------------
-# TOOL: HOY
+# ENDPOINTS
 # -------------------------
-@server.tool()
-def pvpc_hoy() -> str:
+
+@app.get("/")
+async def root():
+    """Endpoint raíz con información de la API"""
+    return {
+        "name": "PVPC API",
+        "version": "1.0.0",
+        "endpoints": {
+            "/hoy": "Precios PVPC de hoy",
+            "/manana": "Precios PVPC de mañana (disponible desde las 20:00)",
+            "/health": "Health check"
+        }
+    }
+
+@app.get("/health")
+async def health():
+    """Health check para Fly.io"""
+    return {"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()}
+
+@app.get("/hoy")
+async def pvpc_hoy():
     """Obtiene los precios PVPC para hoy"""
     try:
-        logger.info("🔧 Tool llamado: pvpc_hoy")
+        logger.info("🔧 Endpoint llamado: /hoy")
         ahora = datetime.now(timezone.utc)
         valores = pedir_1001(ahora)
         resultado = procesar(valores)
-        return json.dumps(resultado, ensure_ascii=False)
+        return JSONResponse(content=resultado)
     except Exception as e:
-        logger.error(f"💥 Error en pvpc_hoy: {e}")
-        return json.dumps({"error": str(e)}, ensure_ascii=False)
+        logger.error(f"💥 Error en /hoy: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-# -------------------------
-# TOOL: MAÑANA
-# -------------------------
-@server.tool()
-def pvpc_manhana() -> str:
+@app.get("/manana")
+async def pvpc_manana():
     """Obtiene los precios PVPC para mañana (disponible después de las 20:00)"""
     try:
-        logger.info("🔧 Tool llamado: pvpc_manhana")
+        logger.info("🔧 Endpoint llamado: /manana")
         hora_local = datetime.now()
         
         if hora_local.hour < 20:
             logger.warning(f"⏰ Datos de mañana solicitados a las {hora_local.hour}:00 (disponible desde las 20:00)")
-            return json.dumps({
-                "error": "Datos de mañana no disponibles hasta las 20:00",
-                "hora_actual": hora_local.strftime("%H:%M")
-            }, ensure_ascii=False)
+            raise HTTPException(
+                status_code=425,
+                detail={
+                    "error": "Datos de mañana no disponibles hasta las 20:00",
+                    "hora_actual": hora_local.strftime("%H:%M")
+                }
+            )
 
         manana = datetime.now(timezone.utc) + timedelta(days=1)
         valores = pedir_1001(manana)
         resultado = procesar(valores)
-        return json.dumps(resultado, ensure_ascii=False)
+        return JSONResponse(content=resultado)
     
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"💥 Error en pvpc_manhana: {e}")
-        return json.dumps({"error": str(e)}, ensure_ascii=False)
+        logger.error(f"💥 Error en /manana: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # -------------------------
 # MAIN
 # -------------------------
 if __name__ == "__main__":
-    logger.info(f"🌐 Iniciando servidor en puerto {PORT}")
-    server.run()
+    logger.info(f"🌐 Iniciando servidor FastAPI en puerto {PORT}")
+    uvicorn.run(app, host="0.0.0.0", port=PORT, log_level="info")
