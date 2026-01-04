@@ -2,19 +2,19 @@ import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { ESIOSClient } from './esios.js';
 
-// Cargar variables de entorno
+// Load environment variables
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Crear instancia del cliente ESIOS
+// Create ESIOS client instance
 const esiosClient = new ESIOSClient(process.env.ESIOS_TOKEN);
 
 // Middleware
 app.use(express.json());
 
-// CORS para permitir llamadas desde GPT
+// CORS to allow calls from GPT
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
