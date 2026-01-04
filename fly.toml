@@ -1,16 +1,23 @@
-app = 'pvpc-gpt'
-primary_region = 'mad'
+# fly.toml app configuration file generated for precio-de-la-electricidad on 2026-01-04T10:52:56Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'precio-de-la-electricidad'
+primary_region = 'cdg'
 
 [build]
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = 'suspend'
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
+  processes = ['app']
 
 [[vm]]
-  memory = '256mb'
+  memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 256
